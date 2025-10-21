@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Vùng quê miền Tây Nam Bộ — Tranh 3D tương tác</title>
+  <style>
+    html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial}
+    #app{height:100vh;overflow:hidden;display:flex;flex-direction:column}
+    canvas{display:block}
+    .ui{
+      position:absolute;left:20px;top:20px;z-index:10;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,0.6);
+      background:linear-gradient(180deg,rgba(0,0,0,0.22),rgba(0,0,0,0.08));backdrop-filter:blur(6px);
+      padding:14px;border-radius:12px;max-width:340px
+    }
+    h1{margin:0 0 8px 0;font-size:18px}
+    p{margin:0;font-size:13px;line-height:1.4}
+    .footer{position:absolute;right:20px;bottom:18px;color:#fff;z-index:10;opacity:0.9}
+    .hint{margin-top:10px;font-size:12px;opacity:0.9}
+    .btn{display:inline-block;margin-top:10px;padding:6px 10px;border-radius:8px;background:rgba(255,255,255,0.12);cursor:pointer}
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="ui">
+      <h1>Vùng quê miền Tây Nam Bộ — Một bức tranh 3D</h1>
+      <p>Hãy di chuột/điều khiển để thay đổi góc nhìn. Gió lướt qua ruộng lúa vàng, cò trắng bay lả, trâu bò thong dong — tôi đã vẽ cảnh này với hiệu ứng chuyển động mượt mà và ánh sáng ấm áp.</p>
+      <div class="hint">Nhấn <span class="btn" id="toggle-autoplay">Tạm dừng</span> để dừng chuyển động.</div>
+    </div>
+    <div class="footer">Thiết kế: Họa sĩ ảo • Hiệu ứng: Three.js</div>
+  </div>
+
+  <!-- Three.js từ CDN -->
+  <script src="https://unpkg.com/three@0.155.0/build/three.min.js"></script>
+  <script src="https://unpkg.com/three@0.155.0/examples/js/controls/OrbitControls.js"></script>
+
+  <script>
+  // --- thiết lập cơ bản ---
+  const container = document.getElementById('app');
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, innerWidth/innerHeight, 0.1, 1000);
+  camera.position.set(0, 12, 28);
+
+  const renderer = new THREE.WebGLRenderer({antialias:true});
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  container.appendChild(renderer.domElement);
+
+  // controls
+  const controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.target.set(0,2,0);
+  controls.maxPolarAngle = Math.PI*0.45;
+  controls.minDistance = 8; controls.maxDistance = 60;
+
+  // ánh sáng
+  const hemi = new THREE.HemisphereLight(0xfff4e3, 0x6a7d9a, 0.9); scene.add(hemi);
+  const dir = new THREE.DirectionalLight(0xfff0c8, 0.9); dir.position.set(-10,20,10); dir.castShadow=true; scene.add(dir);
+
+  // nền trời gradient bằng plane lớn
+  const skyGeo = new THREE.PlaneGeometry(200,100);
+  const skyMat = new THREE.ShaderMaterial({
+    uniforms:{uTop:{value:new THREE.Color(0x7ec8ff)}, uBottom:{value:new THREE.Color(0xfff1d6)}},
+    vertexShader: `varying vec2 vUv; void main(){vUv=uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);}`,
+    fragmentShader: `uniform vec3 uTop; uniform vec3 uBottom; varying vec2 vUv; void main(){ vec3 c = mix(uBottom, uTop, smoothstep(0.0,1.0,vUv.y)); gl_FragColor = vec4(c,1.0);} `,
+    side: THREE.BackSide, depthWrite:false
+  });
+  const sky = new THREE.Mesh(skyGeo, skyMat); sky.position.set(0,30,-70); sky.rotateX(Math.PI/6); scene.add(sky);
+
+  // mặt đất (ruộng bậc thang đơn giản)
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(200,200,2,2), new THREE.MeshStandardMaterial({color:0x4a6a2b}));
+  ground.rotateX(-Math.PI/2); ground.position.y = 0; ground.receiveShadow=true; scene.add(ground);
+
+  // Ruộng lúa: đám cỏ lúa vàng sử dụng InstancedMesh với shader swaying
+  const bladeGeo = new THREE.PlaneGeometry(0.12, 1.2, 4, 8);
+  bladeGeo.translate(0,0.6,0);
+
+  // vertex màu để gradient từ thân tới ngọn
+  const bladeMat = new THREE.ShaderMaterial({
+    uniforms:{ time:{value:0}, windDir:{value:new THREE.Vector2(1.0,0.3)}, golden:{value:new THREE.Color(0xffd36a)} },
+    vertexShader:`attribute vec3 instanceOffset; varying float vY; varying vec2 vUv; uniform float time; uniform vec2 windDir; void main(){ vUv = uv; vY = position.y; vec3 pos = position; float phase = (instanceOffset.x*12.9898 + instanceOffset.z*78.233) * 43758.5453;
+      float sway = sin(time*1.2 + phase) * 0.25; // sway magnitude
+      // stronger sway toward tip
+      float f = smoothstep(0.0,1.0,position.y/1.2);
+      vec3 wind = vec3(windDir.x, 0.0, windDir.y) * sway * f;
+      vec4 mvPosition = modelViewMatrix * vec4(position + instanceOffset + wind, 1.0);
+      gl_Position = projectionMatrix * mvPosition; }`,
+    fragmentShader:`uniform vec3 golden; varying float vY; varying vec2 vUv; void main(){ float g = smoothstep(0.0,0.8,vY); vec3 c = mix(vec3(0.12,0.45,0.06), golden, g); float alpha = smoothstep(0.05,0.0,abs(vUv.x-0.5)); if(alpha<0.01) discard; gl_FragColor = vec4(c,1.0);} `,
+    side: THREE.DoubleSide
+  });
+
+  // tạo InstancedMesh
+  const countX = 120, countZ = 60; const total = countX * countZ;
+  const inst = new THREE.InstancedMesh(bladeGeo, bladeMat, total);
+  const dummy = new THREE.Object3D();
+  const offsets = new Float32Array(total*3);
+  let i=0;
+  for(let x=0;x<countX;x++){
+    for(let z=0;z<countZ;z++){
+      const ix = (x-(countX/2))*0.45 + (Math.random()-0.5)*0.2;
+      const iz = (z-(countZ/4))*0.55 + Math.sin(x*0.1)*0.15;
+      dummy.position.set(ix, 0, iz);
+      dummy.rotation.y = (Math.random()-0.5)*0.6;
+      dummy.scale.setScalar(0.6 + Math.random()*0.6);
+      dummy.updateMatrix();
+      inst.setMatrixAt(i, dummy.matrix);
+      offsets[i*3+0]=ix; offsets[i*3+1]=0; offsets[i*3+2]=iz;
+      i++;
+    }
+  }
+  inst.instanceMatrix.needsUpdate = true;
+  inst.geometry.setAttribute('instanceOffset', new THREE.InstancedBufferAttribute(offsets,3));
+  scene.add(inst);
+
+  // Cò trắng: vài con đơn giản bay vòng
+  const storkGroup = new THREE.Group();
+  function makeStork(){
+    const g = new THREE.Group();
+    const body = new THREE.Mesh(new THREE.BoxGeometry(0.18,0.18,0.6), new THREE.MeshStandardMaterial({color:0xf8f6f0}));
+    body.position.set(0,0,0);
+    const beak = new THREE.Mesh(new THREE.ConeGeometry(0.04,0.18,6), new THREE.MeshStandardMaterial({color:0xff9b42})); beak.position.set(0,0,0.38); beak.rotateX(Math.PI/2);
+    const wingL = new THREE.Mesh(new THREE.BoxGeometry(0.02,0.3,0.9), new THREE.MeshStandardMaterial({color:0xffffff})); wingL.position.set(-0.18,0,0); wingL.rotateZ(0.2);
+    const wingR = wingL.clone(); wingR.position.x = 0.18; wingR.rotateZ(-0.4);
+    g.add(body,beak,wingL,wingR);
+    return {group:g, wingL, wingR};
+  }
+  const storks = [];
+  for(let s=0;s<6;s++){ const sdata = makeStork(); sdata.group.position.set(-6 + Math.random()*12, 5 + Math.random()*2, -6 + Math.random()*12); scene.add(sdata.group); storks.push(sdata); }
+
+  // Trâu/bò đậm chất miền Tây: đổ khối, lặng lờ đi
+  const buffaloes = new THREE.Group();
+  function makeBuffalo(){
+    const mat = new THREE.MeshStandardMaterial({color:0x4b3422});
+    const body = new THREE.Mesh(new THREE.BoxGeometry(1.6,0.8,0.7), mat); body.position.y = 0.5;
+    const head = new THREE.Mesh(new THREE.BoxGeometry(0.6,0.4,0.5), mat); head.position.set(0.95,0.5,0);
+    const hornL = new THREE.Mesh(new THREE.ConeGeometry(0.06,0.18,6), new THREE.MeshStandardMaterial({color:0xe6d9c6})); hornL.position.set(1.15,0.78,-0.18); hornL.rotateZ(Math.PI/2);
+    const hornR = hornL.clone(); hornR.position.z = 0.18;
+    const legs = new THREE.Group(); for(let k=0;k<4;k++){ const leg = new THREE.Mesh(new THREE.BoxGeometry(0.12,0.6,0.12), mat); leg.position.set(k<2?-0.5:0.5,0.15, k%2? -0.22:0.22); legs.add(leg);}    
+    const g = new THREE.Group(); g.add(body,head,hornL,hornR,legs); g.scale.setScalar(1.0); return g;
+  }
+  for(let b=0;b<4;b++){ const bb = makeBuffalo(); bb.position.set(-8 + b*4 + Math.random()*1.2, 0, 8 + Math.random()*1.8); buffaloes.add(bb);} scene.add(buffaloes);
+
+  // Một láng cảnh nhỏ: cây dừa silhouette
+  function makePalm(){ const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.12,0.18,3,6), new THREE.MeshStandardMaterial({color:0x6b4b2b})); trunk.position.y=1.5; const leaves = new THREE.Group(); for(let i=0;i<6;i++){ const l = new THREE.Mesh(new THREE.BoxGeometry(0.08,0.02,1.6), new THREE.MeshStandardMaterial({color:0x2b7b3a})); l.position.set(0,1.8,0); l.rotateY(i/6*Math.PI*2); l.rotateX(-0.6); leaves.add(l);} const g=new THREE.Group(); g.add(trunk,leaves); return g; }
+  const palms = makePalm(); palms.position.set(-9,0,2); palms.scale.setScalar(0.9); scene.add(palms);
+
+  // animation loop
+  let clock = new THREE.Clock();
+  let autoplay = true;
+  document.getElementById('toggle-autoplay').addEventListener('click',()=>{ autoplay = !autoplay; document.getElementById('toggle-autoplay').textContent = autoplay? 'Tạm dừng':'Tiếp tục'; });
+
+  function animate(){
+    requestAnimationFrame(animate);
+    const t = clock.getElapsedTime();
+    // cập nhật shader time
+    bladeMat.uniforms.time.value = t;
+    bladeMat.uniforms.windDir.value.set(Math.cos(t*0.12), Math.sin(t*0.08));
+
+    // storks bay
+    if(autoplay){
+      storks.forEach((s,idx)=>{
+        const g = s.group; const phase = t*0.6 + idx*0.9;
+        g.position.x += Math.sin(phase)*0.002; g.position.z += Math.cos(phase*1.1)*0.003; g.position.y = 4.5 + Math.sin(phase*1.4)*0.6;
+        // cánh vỗ
+        s.wingL.rotation.z = Math.sin(phase*6)*0.6 + 0.2; s.wingR.rotation.z = -Math.sin(phase*6)*0.6 - 0.2;
+        g.rotateY(Math.sin(phase*0.3)*0.003);
+      });
+
+      // buffaloes đi bộ nhẹ
+      buffaloes.children.forEach((b,bi)=>{
+        b.position.x += 0.006 * Math.sin(t*0.6 + bi);
+        b.children[4].children.forEach((leg,li)=>{ // animate 4 legs (group index 4)
+          leg.rotation.x = Math.sin(t*6 + li)*0.25 * (bi%2?1:-1);
+        });
+      });
+    }
+
+    // nhẹ nhàng xoay camera mục tiêu để tạo cảm giác sống động
+    controls.update();
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  // responsive
+  window.addEventListener('resize',()=>{ camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth,innerHeight); });
+
+  // một chút hướng dẫn in-console
+  console.log('Trang 3D "Vùng quê miền Tây Nam Bộ" đã sẵn sàng. Mở file index.html trong trình duyệt để xem.');
+  </script>
+</body>
+</html>
