@@ -1,0 +1,2 @@
+# HocLapTrinhAI
+Học không khó
