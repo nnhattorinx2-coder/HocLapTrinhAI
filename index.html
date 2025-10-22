@@ -3,102 +3,211 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Profile - Cung Bảo Bình</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <title>CV — Trương Nhật Linh</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
   <style>
     :root{
-      /* Tông màu phong thủy của cung Bảo Bình (khí + nước) */
-      --bg1:#0a0d1c;  /* xanh đen vũ trụ */
-      --bg2:#1b2540;  /* lam thiên thanh */
-      --accent:#66d9ff; /* xanh ngọc sáng */
-      --accent2:#b0e7ff; /* ánh sáng sao */
-      --muted:#c8d5e1;
-      --card:#10182e;
-      --glass:rgba(255,255,255,0.06);
-      font-family:'Inter',sans-serif;
+      --left-bg:#073046;
+      --accent:#66d9ff;
+      --accent-2:#b7eeff;
+      --card:#0e1624;
+      --muted:#cfeefc;
+      --white: #ffffff;
+      font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
     }
-
-    *{box-sizing:border-box;margin:0;padding:0}
+    *{box-sizing:border-box}
     body{
+      margin:0;
+      background:linear-gradient(180deg,#021424 0%,#05263a 100%);
+      color:var(--muted);
+      padding:28px;
+      display:flex;
+      justify-content:center;
       min-height:100vh;
-      background: radial-gradient(circle at 20% 20%, rgba(102,217,255,0.12), transparent 60%), linear-gradient(180deg,var(--bg1), var(--bg2));
-      color:var(--muted);
-      display:flex;align-items:center;justify-content:center;
-      padding:40px;
+      -webkit-font-smoothing:antialiased;
+    }
+    .cv{
+      width:100%;
+      max-width:1100px;
+      background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));
+      border-radius:16px;
       overflow:hidden;
+      display:grid;
+      grid-template-columns:320px 1fr;
+      box-shadow:0 18px 60px rgba(2,8,23,0.6);
+      border:1px solid rgba(255,255,255,0.03);
     }
-
-    /* Hiệu ứng ánh sáng động */
-    .aura{
-      position:fixed;inset:0;pointer-events:none;z-index:0;
-      background: radial-gradient(800px 800px at 50% 50%, rgba(102,217,255,0.08), transparent), radial-gradient(600px 600px at 80% 80%, rgba(176,231,255,0.05), transparent);
-      animation: glow 10s ease-in-out infinite alternate;
-      filter:blur(40px);
+    .side{
+      background:var(--left-bg);
+      padding:30px 22px;
+      color:var(--white);
     }
-    @keyframes glow{
-      0%{transform:scale(1) rotate(0deg)}
-      100%{transform:scale(1.05) rotate(10deg)}
-    }
-
-    .card{
-      position:relative;z-index:1;
-      background:rgba(255,255,255,0.05);
-      border-radius:20px;
-      border:1px solid rgba(255,255,255,0.08);
-      box-shadow:0 8px 32px rgba(0,0,0,0.6);
-      padding:32px;
-      max-width:900px;width:95%;
-      display:grid;grid-template-columns:220px 1fr;gap:28px;
-      backdrop-filter:blur(10px);
-      animation: appear 1s ease forwards;
-    }
-    @keyframes appear{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
-
     .avatar{
-      width:180px;height:180px;border-radius:50%;
-      background:linear-gradient(135deg,rgba(176,231,255,0.2),rgba(102,217,255,0.1));
-      display:flex;align-items:center;justify-content:center;font-size:50px;color:var(--accent);
-      box-shadow:0 0 30px rgba(102,217,255,0.2),inset 0 0 20px rgba(176,231,255,0.08);
+      width:150px;height:150px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      margin:0 auto 16px auto;
+      background:linear-gradient(135deg,rgba(183,238,255,0.12),rgba(102,217,255,0.08));
+      box-shadow:0 8px 30px rgba(0,0,0,0.6);
+      overflow:hidden;
+      border:3px solid rgba(183,238,255,0.06);
     }
-
-    h1{color:var(--accent2);font-size:26px;margin-bottom:8px}
-    .subtitle{font-size:15px;color:var(--accent);margin-bottom:12px}
-    .bio{line-height:1.6;font-size:15px}
-
-    .meta{display:flex;gap:12px;margin-top:20px;flex-wrap:wrap}
-    .meta a{
-      background:rgba(255,255,255,0.06);
-      border:1px solid rgba(255,255,255,0.08);
-      padding:8px 14px;
-      border-radius:10px;
-      color:var(--muted);
-      text-decoration:none;
-      transition:all .3s ease;
-    }
-    .meta a:hover{background:var(--accent);color:#00111c;box-shadow:0 0 20px rgba(102,217,255,0.4)}
-
-    @media(max-width:750px){
-      .card{grid-template-columns:1fr;text-align:center;padding:24px}
-      .avatar{margin:0 auto}
+    .avatar img{width:100%;height:100%;object-fit:cover;display:block}
+    .display-name{text-align:center;margin-top:8px;font-weight:700;font-size:20px;color:var(--accent-2)}
+    .handle{text-align:center;font-size:13px;color:rgba(255,255,255,0.8);margin-top:6px}
+    .contact{margin-top:20px;border-top:1px dashed rgba(255,255,255,0.06);padding-top:18px;font-size:14px;line-height:1.8}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .muted{color:rgba(255,255,255,0.8);font-size:13px}
+    .section-title{margin:20px 0 10px 0;display:flex;align-items:center;gap:10px;font-weight:700;color:var(--accent-2);font-size:13px;text-transform:uppercase;letter-spacing:0.6px}
+    .skills,.goals{font-size:14px;margin-top:6px;display:flex;flex-direction:column;gap:8px}
+    .skill-pill{background:rgba(255,255,255,0.03);padding:8px 10px;border-radius:999px;font-weight:600;color:var(--accent-2);border:1px solid rgba(102,217,255,0.06)}
+    .download-btn{display:block;margin:20px auto 0;text-align:center;padding:10px 14px;background:var(--accent);color:#00121a;font-weight:700;border-radius:10px;text-decoration:none;box-shadow:0 8px 24px rgba(102,217,255,0.12)}
+    .main{padding:26px 34px;background:linear-gradient(180deg,rgba(255,255,255,0.006),transparent)}
+    .banner{display:flex;justify-content:space-between;align-items:center;gap:16px;border-bottom:1px solid rgba(255,255,255,0.03);padding-bottom:12px}
+    .name-block h1{margin:0;font-size:26px;color:var(--accent-2)}
+    .name-block p{margin:6px 0 0;color:var(--muted);font-size:14px}
+    .quick-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .action{background:rgba(255,255,255,0.03);padding:8px 12px;border-radius:10px;color:var(--muted);text-decoration:none;font-weight:700;border:1px solid rgba(255,255,255,0.02)}
+    .action:hover{background:var(--accent);color:#00121a;box-shadow:0 10px 30px rgba(102,217,255,0.12)}
+    .summary{margin:18px 0;font-size:15px;line-height:1.6;color:rgba(255,255,255,0.9)}
+    .exp-list{display:flex;flex-direction:column;gap:18px;margin-top:6px}
+    .exp{padding:14px;background:linear-gradient(180deg,rgba(255,255,255,0.015),rgba(255,255,255,0.01));border-left:4px solid rgba(102,217,255,0.12);border-radius:10px;color:var(--muted)}
+    .exp h3{margin:0;color:var(--accent-2);font-size:16px}
+    .exp .meta{font-size:13px;margin-top:6px;color:rgba(255,255,255,0.78)}
+    .exp ul{margin:8px 0 0 18px;padding:0;color:rgba(255,255,255,0.85)}
+    .edu{margin-top:18px;display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap}
+    .edu-item{background:rgba(255,255,255,0.02);padding:12px;border-radius:10px;min-width:260px}
+    .tech-grid{display:grid;grid-template-columns:repeat(2, minmax(0,1fr));gap:12px;margin-top:12px}
+    .tech{background:rgba(255,255,255,0.02);padding:10px;border-radius:8px;color:var(--muted)}
+    .bar{height:8px;background:rgba(255,255,255,0.03);border-radius:999px;overflow:hidden;margin-top:8px}
+    .bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:999px}
+    .foot{margin-top:22px;display:flex;justify-content:space-between;align-items:center;gap:12px;color:rgba(255,255,255,0.6);font-size:13px}
+    @media(max-width:900px){
+      .cv{grid-template-columns:1fr}
+      .side{order:2}
+      .main{order:1}
+      .banner{flex-direction:column;align-items:flex-start;gap:12px}
     }
   </style>
 </head>
 <body>
-  <div class="aura"></div>
-
-  <div class="card">
-    <div class="avatar">♒</div>
-    <div>
-      <h1>Xin chào — Mình là Linh</h1>
-      <div class="subtitle">Cung Bảo Bình ✦ Người của tự do và sáng tạo</div>
-      <p class="bio">Mình là một Bảo Bình chính hiệu — yêu sự mới mẻ, sáng tạo không ngừng và luôn muốn mang lại nguồn năng lượng tích cực cho mọi người xung quanh. Với mình, ý tưởng giống như những dòng điện xanh – chúng truyền cảm hứng, thắp sáng và kết nối. Mình thích thiết kế, công nghệ, và mọi thứ có thể biến trí tưởng tượng thành hiện thực. Cuộc sống là một bầu trời rộng, và mình muốn bay giữa những vì sao của riêng mình.</p>
-      <div class="meta">
-        <a href="https://www.facebook.com/share/17Gvgmu24A/?mibextid=wwXIfr" target="_blank">Facebook</a>
-        <a href="tel:0704107623">Zalo: 0704107623</a>
+  <div class="cv">
+    <aside class="side">
+      <div class="avatar">
+        <img src="anhcv.jpg" alt="Ảnh CV" onerror="this.style.display='block'; this.parentNode.innerHTML='👤';">
       </div>
-    </div>
+      <div class="display-name">Trương Nhật Linh</div>
+      <div class="handle">✨ "Aqua Systems" — Digital & AI Systems Designer</div>
+
+      <div class="contact">
+        <div class="muted">Ngày sinh</div>
+        <div>27/01/1998</div>
+        <div style="margin-top:10px" class="muted">Địa chỉ</div>
+        <div>Ấp Khánh Nghĩa, Xã Tân Khánh Đông, P. Sa Đéc, T. Đồng Tháp</div>
+        <div style="margin-top:10px" class="muted">Liên hệ</div>
+        <div class="row">
+          <a class="action" href="https://www.facebook.com/share/17Gvgmu24A/?mibextid=wwXIfr" target="_blank">Facebook</a>
+          <a class="action" href="tel:0704107623">Zalo: 0704107623</a>
+        </div>
+      </div>
+
+      <div class="section-title">Mục tiêu nghề nghiệp</div>
+      <div class="goals">
+        <div>- Phát triển trong lĩnh vực hệ thống và trí tuệ nhân tạo.</div>
+        <div>- Ứng dụng AI và tư duy hệ thống vào sản phẩm thực tế.</div>
+      </div>
+
+      <div class="section-title">Kỹ năng công nghệ</div>
+      <div class="skills">
+        <div class="skill-pill">AI & Machine Learning</div>
+        <div class="skill-pill">Systems Thinking</div>
+        <div class="skill-pill">Front-end (HTML/CSS/JS)</div>
+        <div class="skill-pill">Python & Automation</div>
+        <div class="skill-pill">Database & REST API</div>
+      </div>
+
+      <a class="download-btn" href="#" onclick="window.print();return false;">Tải / In CV</a>
+    </aside>
+
+    <section class="main">
+      <div class="banner">
+        <div class="name-block">
+          <h1>Trương Nhật Linh</h1>
+          <p>Digital Systems Designer • Kết hợp AI & tư duy hệ thống</p>
+        </div>
+        <div class="quick-actions">
+          <a class="action" href="#experience">Kinh nghiệm</a>
+          <a class="action" href="#projects">Dự án</a>
+          <a class="action" href="#edu">Học vấn</a>
+        </div>
+      </div>
+
+      <p class="summary">
+        Là người thuộc cung Bảo Bình, tôi mang trong mình tư duy sáng tạo và tính hệ thống. Tôi luôn hướng đến việc kết hợp công nghệ thông tin, trí tuệ nhân tạo và giải pháp thực tiễn để tối ưu hoá quy trình, mang lại giá trị bền vững cho tổ chức.
+      </p>
+
+      <div id="experience" class="section-title">Kinh nghiệm làm việc</div>
+      <div class="exp-list">
+        <div class="exp">
+          <h3>Nhân viên thu ngân & hỗ trợ kỹ thuật — Điện máy X</h3>
+          <div class="meta">05/2024 - Hiện tại</div>
+          <ul>
+            <li>Hỗ trợ thanh toán, quản lý hàng hóa và tư vấn khách hàng.</li>
+            <li>Tự động hoá quy trình kiểm kê bằng Python.</li>
+          </ul>
+        </div>
+        <div class="exp">
+          <h3>Giao dịch viên — Cầm đồ & dịch vụ</h3>
+          <div class="meta">06/2023 - 03/2024</div>
+          <ul>
+            <li>Tư vấn khách hàng, lập hợp đồng và quản lý dữ liệu số hóa.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div id="projects" class="section-title" style="margin-top:20px">Dự án tiêu biểu</div>
+      <div class="exp-list">
+        <div class="exp">
+          <h3>Hệ thống kiểm kê tự động</h3>
+          <div class="meta">Python • Excel automation</div>
+          <ul>
+            <li>Tự động tổng hợp báo cáo hàng tồn, giảm thời gian kiểm kê 80%.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div id="edu" class="section-title" style="margin-top:20px">Học vấn</div>
+      <div class="edu">
+        <div class="edu-item">
+          <strong>Đại học An Giang</strong><br>
+          Ngành: Tài chính doanh nghiệp<br>
+          (08/2017 - 08/2021) — Xếp loại: Khá
+        </div>
+      </div>
+
+      <div class="section-title" style="margin-top:18px">Kỹ năng AI & Hệ thống</div>
+      <div class="tech-grid">
+        <div class="tech"><strong>Python</strong><div class="bar"><i style="width:85%"></i></div></div>
+        <div class="tech"><strong>Machine Learning</strong><div class="bar"><i style="width:75%"></i></div></div>
+        <div class="tech"><strong>Front-end</strong><div class="bar"><i style="width:80%"></i></div></div>
+        <div class="tech"><strong>Systems Design</strong><div class="bar"><i style="width:88%"></i></div></div>
+      </div>
+
+      <div class="foot">
+        <div>📧 Email: <span style="color:var(--accent-2)">thêm email của bạn</span></div>
+        <div>📍 Sa Đéc, Đồng Tháp</div>
+      </div>
+    </section>
   </div>
+
+  <script>
+    document.querySelectorAll('.quick-actions a').forEach(a=>{
+      a.addEventListener('click',e=>{
+        e.preventDefault();
+        const href=a.getAttribute('href');
+        if(href && href.startsWith('#'))
+          document.querySelector(href).scrollIntoView({behavior:'smooth'});
+      });
+    });
+  </script>
 </body>
 </html>
